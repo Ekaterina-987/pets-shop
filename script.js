@@ -84,29 +84,54 @@ const items = [{
     },
 ];
 
-const shop = document.querySelector('#shop-items');
+let currentState = [...items];
 
-const titles = document.createElement('h1');
-items.forEach(function(title) {
-    titles.append(title);
-})
+const itemsContainer = document.querySelector('#shop-items');
+const itemTemplate = document.querySelector('#item-template');
+const nothingFound = document.querySelector('#nothing-found');
 
-const descriptions = document.createElement('p');
-items.forEach(function(description) {
-    descriptions.append(description);
-})
+function renderItems(arr) {
+    nothingFound.textContent = "";
+    itemsContainer.innerHTML = "";
+    arr.forEach((item) => {
+        itemsContainer.append(prepareShopItem(item));
+    });
+    if (!arr.length) {
+        nothingFound.textContent = "Ничего не найдено";
+    }
+}
+renderItems(currentState);
 
-const images = document.createElement('img');
-items.forEach(function(img) {
-    images.append(img);
-})
+function prepareShopItem(shopItem) {
+    const { title, description, tags, price, img } = shopItem;
+    const item = itemTemplate.content.cloneNode(true);
 
-const prices = document.createElement('.price');
-items.forEach(function(price) {
-    prices.append(price);
-})
+    item.querySelector("h1").textContent = title;
+    item.querySelector("p").textContent = description;
+    item.querySelector("img").src = img;
+    item.querySelector(".price").textContent = `${price}P`;
 
-const tag = document.createElement('.tags');
-items.forEach(function(tags) {
-    tag.append(tags);
-})
+    const tagsHolder = item.querySelector(".tags");
+
+    tags.forEach((tag) => {
+        const element = document.createElement("span");
+        element.textContent = tag;
+        element.classList.add("tag");
+        tagsHolder.append(element);
+    });
+    return item;
+}
+
+
+const searchInput = document.querySelector('#search-input');
+const searchButton = document.querySelector('#search-btn');
+
+function applySearch() {
+    const searchString = searchInput.value.trim().toLowerCase();
+    currentState = items.filter((el) => el.title.toLowerCase().includes(searchString));
+    renderItems(currentState);
+
+}
+
+searchButton.addEventListener("click", applySearch);
+searchInput.addEventListener("search", applySearch)
